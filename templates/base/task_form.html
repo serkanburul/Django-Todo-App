@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+<h3 class="text-xl font-semibold">Task Form</h3>
+<a href="{% url 'taskList' %}" class="text-blue-500 hover:underline">Go Back</a>
+<form method="post" action="" class="mt-4">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="mb-4">
+            {{ field.label_tag }}
+            {{ field|add_class:"border p-2 rounded w-full" }}
+            {% if field.help_text %}
+                <small class="text-gray-500">{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+                <p class="text-red-500 text-sm">{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <input type="submit" value="Submit" class="mt-2 bg-blue-500 text-white py-1 px-4 rounded">
+</form>
+{% endblock content %}

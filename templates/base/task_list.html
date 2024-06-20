@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}
+Task List
+{% endblock title %}
+
+{% block content %}
+{% if request.user.is_authenticated %}
+<div class="flex items-center">
+    <p class="text-sm">Hello, {{ request.user }}</p>
+    <form method="post" action="{% url 'logout' %}" class="inline ml-auto">
+        {% csrf_token %}
+        <button type="submit" class="text-red-500 hover:underline">Logout</button>
+    </form>
+</div>
+
+{% else %}
+<a href="{% url 'login' %}" class="text-blue-500 hover:underline">Login</a>
+{% endif %}
+
+<hr class="my-4">
+    <a href="/"><h1 class="text-2xl font-bold text-center">Todo App</h1></a>
+
+<form method="get" class="mt-4 flex">
+    <input id="search-area" type="text" name="search-area" value="{{ search_input }}" class="border p-2 rounded w-full mr-2">
+    <input type="submit" value="Search" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+</form>
+<hr class="my-4">
+<table class="mt-4 w-full">
+    <tr>
+        <th class="text-left">Items</th>
+        <th></th>
+    </tr>
+    {% for task in tasks %}
+    <tr class="box">
+        <td>
+            <form action="" method="post">
+                <input id="{{ task.id }}" class="default-checkbox ml-3 mr-8" name="default-checkbox" type="checkbox" value="" class=" w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded
+                focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                {% if task.completed %} checked {% endif %}>
+            </form>
+        </td>
+        <td><h3 id="{{ task.id }}" class="taskName">{{ task }}</h3></td>
+        <td><a href="{% url 'task' task.id %}" class="text-blue-500 hover:underline">View</a></td>
+        <td><a href="{% url 'updateTask' task.id %}" class="text-green-500 hover:underline">Edit</a></td>
+        <td><a href="{% url 'deleteTask' task.id %}" class="text-red-500 hover:underline">Delete</a></td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4" class="text-center">No Items in List</td>
+    </tr>
+    {% endfor %}
+</table>
+    <hr class="my-4">
+    <div class="flex justify-center">
+        <a href="{% url 'createTask' %}" class="text-blue-500 hover:underline">Add Task</a>
+    </div>
+
+    <script>
+
+        let tasks = document.getElementsByClassName('default-checkbox')
+        const url = '/'
+        
+        function getCookie(name) {
+           let cookieValue = null;
+           if (document.cookie && document.cookie !== '') {
+               const cookies = document.cookie.split(';');
+               for (let i = 0; i < cookies.length; i++) {
+                   const cookie = cookies[i].trim();
+                   if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                       cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                       break;
+                   }
+               }
+           }
+           return cookieValue;
+        }
+
+        let taskName = document.getElementsByClassName('taskName')
+
+
+        for (let task of tasks) {
+
+            task.addEventListener('change', () => {
+
+                for (let taskN of taskName) {
+                    if (task.id === taskN.id) {
+                        if (task.checked) {
+                            taskN.classList.add('line-through');
+                            
+                        } else {
+                            taskN.classList.remove('line-through');
+                            
+                        }
+                        break;
+                    }
+                }
+
+
+                fetch(url, {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json',
+                       'X-CSRFToken': getCookie('csrftoken')
+                   },
+
+                   body: JSON.stringify({
+                       is_checked:task.checked,
+                       id:task.id
+                   })
+                })
+                .then(response => {
+                   if (!response.ok) {
+                       throw new Error('Network response was not ok');
+                   }
+                   return response.json();
+                })
+                .then(data => {
+                   console.log('Succeeded', data);
+                })
+                .catch(error => {
+                   console.error('Error:', error);
+                });
+                }
+
+            )
+        }
+
+        document.addEventListener('DOMContentLoaded', function updateTaskStyles() {
+            for (let task of tasks) {
+                for (let taskN of taskName) {
+                    if (task.id === taskN.id) {
+                        if (task.checked) {
+                            taskN.classList.add('line-through');
+                            
+                        } else {
+                            taskN.classList.remove('line-through');
+                            
+                        }
+                        break;
+                    }
+                }
+            }
+        })
+
+
+        
+    </script>
+    
+{% endblock content %}

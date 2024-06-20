@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Task Detail
+{% endblock title %}
+
+{% block content %}
+<h1 class="text-2xl font-bold">Task: {{ task }}</h1>
+<p class="mt-2">{{ task.description }}</p>
+<div class="text-right mr-8"><a href="{% url 'deleteTask' task.id %}" class="font-bold text-red-500 hover:underline">Delete</a></div>
+{% endblock content %}
