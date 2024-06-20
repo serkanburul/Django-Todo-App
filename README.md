@@ -43,7 +43,7 @@
     ```
 
 6. **Run the development server:**
-
+ 
     ```sh
     python manage.py runserver
     ```
